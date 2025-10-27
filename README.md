@@ -1,3 +1,2 @@
 Enlace video explicativo:
-
 https://udbedu-my.sharepoint.com/:v:/g/personal/fg220265_alumno_udb_edu_sv/EfxO8OhEmHRMpyX-EfzyTCwBaovTb5hi9c8VnetMNwzEpg?nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D&e=m3Jira
