@@ -19,46 +19,6 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const logueo = async () => {
-    try {
-      setError("");
-      setLoading(true);
-      const result = await signInWithEmailAndPassword(auth, email, pass);
-      if (!result.ok) throw new Error("Error de autenticacion");
-      console.log(result);
-    } catch (err) {
-      console.error(`Error en autenticacion: ${err.message}`);
-      setError(`Correo y/o contraseña incorrecta`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const provider = new GoogleAuthProvider();
-  const signInGoogle = async () => {
-    const auth = getAuth();
-    signInWithPopup(auth, provider)
-      .then((result) => {
-        // This gives you a Google Access Token. You can use it to access the Google API.
-        const credential = GoogleAuthProvider.credentialFromResult(result);
-        const token = credential?.accessToken;
-        // The signed-in user info.
-        const user = result.user;
-        // IdP data available using getAdditionalUserInfo(result)
-        // ...
-      })
-      .catch((error) => {
-        // Handle Errors here.
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        // The email of the user's account used.
-        const email = error.customData.email;
-        // The AuthCredential type that was used.
-        const credential = GoogleAuthProvider.credentialFromError(error);
-        // ...
-      });
-  };
-
   return (
     <View style={{ flex: 1, padding: 16, justifyContent: "center", gap: 12 }}>
       <Text
