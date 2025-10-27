@@ -1,22 +1,15 @@
 // src/screens/LoginScreen.tsx
-import { useEffect, useState } from "react";
-import {
-  View,
-  TextInput,
-  Button,
-  Text,
-  Alert,
-  ActivityIndicator,
-} from "react-native";
-import { auth } from "../firebase";
+import { useState } from "react";
+import { View, TextInput, Button, Text, ActivityIndicator } from "react-native";
+import { auth } from "../../firebase";
 import {
   signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   GoogleAuthProvider,
-  signInWithCredential,
+  signInWithPopup,
+  getAuth,
 } from "firebase/auth";
 import * as WebBrowser from "expo-web-browser";
-import * as Google from "expo-auth-session/providers/google";
+import React from "react";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -24,85 +17,46 @@ export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [pass, setPass] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // ⚠️ Reemplaza con tus Client IDs de Google (Google Cloud Console)
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: "TU_EXPO_CLIENT_ID.apps.googleusercontent.com",
-    androidClientId: "TU_ANDROID_CLIENT_ID.apps.googleusercontent.com",
-    iosClientId: "TU_IOS_CLIENT_ID.apps.googleusercontent.com",
-    webClientId: "TU_WEB_CLIENT_ID.apps.googleusercontent.com",
-    // No pongas useProxy aquí. Se pasa al llamar a promptAsync().
-  });
-
-  // Procesa el resultado de Google y loguea en Firebase
-  useEffect(() => {
-    const run = async () => {
-      if (response?.type === "success") {
-        try {
-          setLoading(true);
-          // idToken puede venir en authentication o en params según la versión
-          const idToken =
-            response.authentication?.idToken ||
-            (response as any)?.params?.id_token;
-
-          if (!idToken) throw new Error("No se recibió id_token de Google.");
-
-          const cred = GoogleAuthProvider.credential(idToken);
-          await signInWithCredential(auth, cred);
-        } catch (e: any) {
-          Alert.alert("Error con Google", e?.message ?? String(e));
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-    run();
-  }, [response]);
-
-  const signInEmail = async () => {
+  const logueo = async () => {
     try {
-      if (!email.trim() || !pass) {
-        Alert.alert(
-          "Completa los campos",
-          "Correo y contraseña son requeridos."
-        );
-        return;
-      }
+      setError("");
       setLoading(true);
-      await signInWithEmailAndPassword(auth, email.trim(), pass);
-    } catch (e: any) {
-      Alert.alert("Error al iniciar sesión", e?.message ?? String(e));
+      const result = await signInWithEmailAndPassword(auth, email, pass);
+      if (!result.ok) throw new Error("Error de autenticacion");
+      console.log(result);
+    } catch (err) {
+      console.error(`Error en autenticacion: ${err.message}`);
+      setError(`Correo y/o contraseña incorrecta`);
     } finally {
       setLoading(false);
     }
   };
 
-  const registerEmail = async () => {
-    try {
-      if (!email.trim() || !pass) {
-        Alert.alert(
-          "Completa los campos",
-          "Correo y contraseña son requeridos."
-        );
-        return;
-      }
-      setLoading(true);
-      await createUserWithEmailAndPassword(auth, email.trim(), pass);
-      Alert.alert("Cuenta creada", "Ya puedes iniciar sesión.");
-    } catch (e: any) {
-      Alert.alert("Error al registrar", e?.message ?? String(e));
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  const provider = new GoogleAuthProvider();
   const signInGoogle = async () => {
-    try {
-      // En desarrollo con Expo Go usa el proxy:
-      await promptAsync({ useProxy: true, showInRecents: true });
-    } catch (e: any) {
-      Alert.alert("Error Google", e?.message ?? String(e));
-    }
+    const auth = getAuth();
+    signInWithPopup(auth, provider)
+      .then((result) => {
+        // This gives you a Google Access Token. You can use it to access the Google API.
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential?.accessToken;
+        // The signed-in user info.
+        const user = result.user;
+        // IdP data available using getAdditionalUserInfo(result)
+        // ...
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // The email of the user's account used.
+        const email = error.customData.email;
+        // The AuthCredential type that was used.
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        // ...
+      });
   };
 
   return (
@@ -139,14 +93,28 @@ export default function LoginScreen() {
         <ActivityIndicator size="large" />
       ) : (
         <>
-          <Button title="Ingresar" onPress={signInEmail} />
-          <Button title="Crear cuenta" onPress={registerEmail} />
+          <Button title="Ingresar" onPress={logueo} disabled={loading} />
           <View style={{ height: 8 }} />
           <Button
             title="Continuar con Google"
             onPress={signInGoogle}
-            disabled={!request}
+
+            // disabled={!request}
           />
+          {error && (
+            <p
+              style={{
+                color: "red",
+                backgroundColor: "#ffe6e6",
+                border: "1px solid #ff9999",
+                borderRadius: "6px",
+                padding: "8px",
+                fontSize: "0.9rem",
+              }}
+            >
+              ⚠️ {error}
+            </p>
+          )}
         </>
       )}
 

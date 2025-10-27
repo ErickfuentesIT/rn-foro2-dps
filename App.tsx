@@ -4,9 +4,10 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import LoginScreen from "./src/screens/LoginScreen";
 import HomeScreen from "./src/screens/HomeScreen";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "./src/firebase";
+import { auth } from "./firebase";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
+import React from "react";
 
 export type RootStackParamList = {
   Login: undefined;

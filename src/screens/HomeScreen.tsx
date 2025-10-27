@@ -1,7 +1,8 @@
 // src/screens/HomeScreen.tsx
 import { View, Text, Button } from "react-native";
 import { signOut } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth } from "../../firebase";
+import React from "react";
 
 export default function HomeScreen() {
   return (
